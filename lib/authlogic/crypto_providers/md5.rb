@@ -26,26 +26,13 @@ module Authlogic
     #
     # Uses the md5 hash algorithm to encrypt passwords.
     class Md5
-      class << self
-        attr_accessor :join_token
-        
-        # The number of times to loop through the encryption. This is ten because that is what restful_authentication defaults to.
-        def stretches
-          @stretches ||= 20
-        end
-        attr_writer :stretches
-        
-        # Turns your raw password into a MD5 hash.
-        def encrypt(*tokens)
-          digest = tokens.flatten.join(join_token)
-          stretches.times { digest = Digest::MD5.hexdigest(digest) }
-          digest
-        end
-        
-        # Does the crypted password match the tokens? Uses the same tokens that were used to encrypt.
-        def matches?(crypted, *tokens)
-          encrypt(*tokens) == crypted
-        end
+
+      def self.encrypt(*tokens)
+        Digest::MD5.hexdigest(tokens.join.to_s).to_s
+      end
+
+      def self.matches?(crypted, tokens)
+        encrypt(*tokens) == crypted
       end
     end
   end
